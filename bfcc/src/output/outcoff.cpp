@@ -2,7 +2,7 @@
 
 uint32_t bfCOFF::UnixTimeStamp()
 {
-    return uint32_t(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count());
+    return uint32_t(chrono::duration_cast<chrono::seconds>(chrono::system_clock::now().time_since_epoch()).count());
 }
 
 COFFHeader* bfCOFF::CreateCOFFHeader(uint16_t Machine, uint16_t NumberOfSections, uint32_t TimeDateStamp, uint32_t PointerToSymbolTable, uint32_t NumberOfSymbols, uint16_t SizeOfOptionalHeader, uint16_t Characteristics)
@@ -130,7 +130,10 @@ vector<Character*> bfCOFF::Analyse()
 {
     vector<Character*> ret;
 
-    rpa = 1;
+    copen = 0;  //[ counter
+    cclose = 0; //] counter
+
+    rpa = 1;    //reloc num
     while(cursor < limit)
     {
         switch (current)
@@ -148,9 +151,11 @@ vector<Character*> bfCOFF::Analyse()
                 ret.push_back(CreateCharacter('<'));
                 break;
             case '[':
+                copen++;
                 ret.push_back(CreateCharacter('['));
                 break;
             case ']':
+                cclose++;
                 ret.push_back(CreateCharacter(']'));
                 break;
             case '.':
@@ -165,6 +170,12 @@ vector<Character*> bfCOFF::Analyse()
                 advance();
                 break;
         }
+    }
+
+    if(cclose != copen)
+    {
+        printf("Analyser error: [ count does't equals ] count\n");
+        exit(1);
     }
 
     return ret;
@@ -226,6 +237,9 @@ vector<uint8_t> bfCOFF::GenerateCode(vector<Character*> input)
 {
     vector<uint8_t> code;
 
+    int cco = 0;
+    int ccc = 0;
+
     //prologue
     //InsertVector(code, GenerateMOVZX());
 
@@ -250,7 +264,7 @@ vector<uint8_t> bfCOFF::GenerateCode(vector<Character*> input)
         switch (a->value)
         {
             case '+':
-                if(a->repeat > 1)
+            {    if(a->repeat > 1)
                 {
                     code.push_back(0x80);
                     code.push_back(0x06);
@@ -262,8 +276,9 @@ vector<uint8_t> bfCOFF::GenerateCode(vector<Character*> input)
                     code.push_back(0x06);
                 }
                 break;
+            }
             case '-':
-                if(a->repeat > 1)
+            {    if(a->repeat > 1)
                 {
                     code.push_back(0x80);
                     code.push_back(0x2E);
@@ -275,8 +290,9 @@ vector<uint8_t> bfCOFF::GenerateCode(vector<Character*> input)
                     code.push_back(0x0E);
                 }
                 break;
+            }
             case '>':
-                if(a->repeat > 1)
+            {    if(a->repeat > 1)
                 {
                     code.push_back(0x48);
                     code.push_back(0x83);
@@ -290,7 +306,9 @@ vector<uint8_t> bfCOFF::GenerateCode(vector<Character*> input)
                     code.push_back(0xC6);
                 }
                 break;
+            }
             case '<':
+            {
                 if(a->repeat > 1)
                 {
                     code.push_back(0x48);
@@ -305,11 +323,61 @@ vector<uint8_t> bfCOFF::GenerateCode(vector<Character*> input)
                     code.push_back(0xCE);
                 }
                 break;
+            }
             case '[':
+            {
+                str kam = "jmp" + to_string(cco);
+                jmpmap[kam.c_str()] = code.size();
+                code.push_back(0x80);
+                code.push_back(0x3E);
+                code.push_back(0x00);
+
+
+                code.push_back(0x0F);
+                code.push_back(0x84);
+
+                code.push_back(0x00);
+                code.push_back(0x00);
+                code.push_back(0x00);
+                code.push_back(0x00);
+                
+                cco++;
                 break;
+            }
             case ']':
+            {
+                str kam = "jmpe" + to_string(ccc);
+                str kbm = "jmp" + to_string(cco-1);
+                jmpmap[kam.c_str()] = code.size(); 
+
+                auto it = jmpmap.find(kbm.c_str());
+
+                if(it == jmpmap.end())
+                {
+                    printf("AAA");
+                    exit(1);
+                }
+
+
+                int k = it->second - code.size() + 2;
+                if(k < -127)
+                {
+                    code.push_back(0xE9);
+                    writeLE(code, k);
+                }
+                else
+                {
+                    code.push_back(0xEB);
+                    code.push_back(k);
+                }
+                //+6
+                int cds = code.size();
+                //memcpy(&code[it->second + 6], &cds, sizeof(cds));
+                ccc++;
                 break;
+            }
             case '.':
+            {
                 //InsertVector(code, GenerateCall());
                 code.push_back(0x48);
                 code.push_back(0x0F);
@@ -324,7 +392,9 @@ vector<uint8_t> bfCOFF::GenerateCode(vector<Character*> input)
                 code.push_back(0x00);
                 code.push_back(0x00);
                 break;
+            }
             case ',':
+            {
                 //InsertVector(code, GenerateCall());
                 code.push_back(0xE8);
                 //CreateRelocation(code.size(), FindSymbolIndex("getchar"), 4);
@@ -337,8 +407,11 @@ vector<uint8_t> bfCOFF::GenerateCode(vector<Character*> input)
                 code.push_back(0x88);
                 code.push_back(0x06);
                 break;
+            }
             default:
+            {
                 break;
+            }
         }
     }
     //
@@ -495,15 +568,6 @@ vector<uint8_t> bfCOFF::GenerateSymbolTable()
     return symbolcode;
 }
 
-void bfCOFF::WriteAll(vector<uint8_t> i)
-{
-    /*for(auto a : i)
-    {
-        printf("%02x ", a);
-        file->fwrite8(a);
-    }*/
-}
-
 void bfCOFF::Generate()
 {
     vector<Character*> tokens = Analyse();
@@ -527,65 +591,10 @@ void bfCOFF::Generate()
 
     for(auto a : code)
     {
+        printf("%02x ", a);
         file->fwrite8(a);
 
     }
-    file->fwrite32(4);
+    file->fwrite32(4);	//string table XD
     file->bfexit();
-    //WriteAll(code);
-    //printf("$$$ %02x %02x", datasize, textsize);
-
-    /*printf("\ntokens\n");
-
-    for(auto a : tokens)
-    {
-        printf("%c times - %i\n", a->value, a->repeat);
-    }
-
-    printf("\ntext code\n");
-
-    for(auto b : textcode)
-    {
-        printf("%02x ", b);
-    }
-
-    printf("\ndata code\n");
-
-    for(auto c : datacode)
-    {
-        printf("%02x ", c);
-    }
-
-    printf("\nSymbol table code\n");
-
-    for(auto d : symbcode)
-    {
-        printf("%02x ", d);
-    }
-
-    printf("\nRelocation table code\n");
-
-    for(auto e : relcode)
-    {
-        printf("%02x ", e);
-    }
-
-    printf("\nCOFF header code\n");
-
-    for(auto f : coffcode)
-    {
-        printf("%02x ", f);
-    }
-
-    printf("\nSection header code\n");
-
-    for(auto e : seccode)
-    {
-        printf("%02x ", e);
-    }*/
-
-
-
-    //printf("%i ASD{AS{D{AS}}}\n", sizeof(uint16_t));
-
 }

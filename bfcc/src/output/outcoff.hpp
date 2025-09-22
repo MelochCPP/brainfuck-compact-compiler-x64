@@ -65,6 +65,7 @@ class bfCOFF
     vector<Symbol*> symbollist;
 
     map<int, const char*> reloclistmap;
+    map<const char*, int> jmpmap;
 
     int rpa;    //reloc num
 
@@ -72,6 +73,11 @@ class bfCOFF
 
     int textsize;
     int datasize;
+
+    int copen;  //[ counter
+    int cclose; //] counter
+
+    vector<int> rewritepos;
 
     template<typename T>
     void writeLE(vector<uint8_t>& vec, T value)
@@ -115,8 +121,6 @@ class bfCOFF
     vector<uint8_t> GenerateMOVZX();
     void InsertVector(vector<uint8_t>&, const vector<uint8_t>&);
     vector<uint8_t> GenerateCode(vector<Character*>);
-    
-    void WriteAll(vector<uint8_t>);
 
     uint32_t UnixTimeStamp();
     char advance();
