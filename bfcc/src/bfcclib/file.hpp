@@ -8,10 +8,15 @@ inline str filename_ret_extension(str inname, str extension)
 class bfFile
 {
     FILE* f;
+
+    const char* file;
+    const char* args;
 public:
     bfFile(str input, str arg)  //use filename_ret_extension
     {
         f = fopen(input.c_str(), arg.c_str());
+        file = input.c_str();
+        args = arg.c_str();
     }
 
     void bfread(void *ptr, size_t size)
@@ -65,12 +70,15 @@ public:
         bfwrite(&data, sizeof(T));
     }
 
-    void bfopen(str input, str arg)
+    void bfopen(const char* input, const char* arg)
     {
-        f = fopen(input.c_str(), arg.c_str());
-        if(!f)
+        printf("%s %s\n", input, arg);
+        f = fopen(input, arg);
+        //fopen_s((FILE**)f, input, arg);
+
+        if(!f || ferror(f) || f == nullptr)
         {
-            printf("FILE API error: failed to open %s\n", input.c_str());
+            printf("FILE API error: failed to open %s\n", input);
             exit(1);
         }
     }

@@ -129,7 +129,7 @@ class bfCOFF
 public:
     bfCOFF(str filename, str input)
     {
-        file->bfopen(filename_ret_extension(filename,  "obj"), "wb");
+        file->bfopen(filename_ret_extension(filename,  "obj").c_str(), "wb");
 
         source = input;
         limit = source.length();

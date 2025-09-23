@@ -9,6 +9,7 @@
 #include <cstring>
 #include <chrono>
 #include <iostream>
+#include <cerrno>
 #include <map>
 
 typedef std::string str;
