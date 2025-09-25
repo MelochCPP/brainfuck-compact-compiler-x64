@@ -4,7 +4,7 @@ inline str filename_ret_extension(str inname, str extension)
 {
     return inname.substr(0, inname.find_last_of(".") + 1) + extension;
 }
-
+//THIS SHIT DOESN'T WORKS
 class bfFile
 {
     FILE* f;
@@ -72,10 +72,9 @@ public:
 
     void bfopen(const char* input, const char* arg)
     {
-        printf("%s %s\n", input, arg);
         f = fopen(input, arg);
-        //fopen_s((FILE**)f, input, arg);
 
+        //perror("FILE API error: failed to open");
         if(!f || ferror(f) || f == nullptr)
         {
             printf("FILE API error: failed to open %s\n", input);

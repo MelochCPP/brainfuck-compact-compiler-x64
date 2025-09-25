@@ -53,6 +53,7 @@ struct Character
 class bfCOFF
 {
     bfFile* file;
+    FILE* f;
 
     str source;
     char current;
@@ -129,7 +130,8 @@ class bfCOFF
 public:
     bfCOFF(str filename, str input)
     {
-        file->bfopen(filename_ret_extension(filename,  "obj").c_str(), "wb");
+        //file->bfopen(filename_ret_extension(filename,  "obj").c_str(), "wb");
+        f = fopen(filename_ret_extension(filename,  "obj").c_str(), "wb");
 
         source = input;
         limit = source.length();

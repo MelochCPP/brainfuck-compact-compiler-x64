@@ -222,7 +222,6 @@ vector<uint8_t> bfCOFF::GenerateExit()
     exit.push_back(0x31);
     exit.push_back(0xC0);
 
-    exit.push_back(0xC9);
     exit.push_back(0xC3);
 
     return exit;
@@ -347,19 +346,18 @@ vector<uint8_t> bfCOFF::GenerateCode(vector<Character*> input)
             case ']':
             {
                 str kam = "jmpe" + to_string(ccc);
-                str kbm = "jmp" + to_string(cco-1);
+                str kbm = "jmp" + to_string(ccc);
                 jmpmap[kam.c_str()] = code.size(); 
 
                 auto it = jmpmap.find(kbm.c_str());
 
                 if(it == jmpmap.end())
                 {
-                    printf("AAA");
                     exit(1);
                 }
 
 
-                int k = it->second - code.size() + 2;
+                int k = it->second - code.size() - 2;
                 if(k < -127)
                 {
                     code.push_back(0xE9);
@@ -371,8 +369,9 @@ vector<uint8_t> bfCOFF::GenerateCode(vector<Character*> input)
                     code.push_back(k);
                 }
                 //+6
-                int cds = code.size();
-                //memcpy(&code[it->second + 6], &cds, sizeof(cds));
+                int cds = code.size() - it->second - 9;
+                printf("%i %i\n", it->second + 6, cds);
+                memcpy(&code[it->second + 5], &cds, sizeof(cds));
                 ccc++;
                 break;
             }
@@ -589,12 +588,16 @@ void bfCOFF::Generate()
     InsertVector(code, relcode);
     InsertVector(code, symbcode);
 
+    printf("%i\n", code.size());
     for(auto a : code)
     {
         printf("%02x ", a);
-        file->fwrite8(a);
-
+        fwrite(&a, 1, sizeof(a), f);
+        //file->fwrite8(a);
     }
-    file->fwrite32(4);	//string table XD
-    file->bfexit();
+    //file->fwrite32(4);	//string table XD
+    int stringtable = 4;
+    fwrite(&stringtable, 1, sizeof(int), f);
+    //file->bfexit();
+    fclose(f);
 }

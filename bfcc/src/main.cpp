@@ -4,7 +4,7 @@ void initglobalvars()
 {
     global_vars::platform = "win64";
     global_vars::inputfilename = "nullptr";
-    global_vars::outputfilename = "nullptr";
+    global_vars::outputfilename = "a.obj";
     global_vars::memory_size = 30000;   //brainfuck standart
     global_vars::start = false;
 }
