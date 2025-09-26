@@ -218,11 +218,11 @@ vector<uint8_t> bfCOFF::GenerateExit()
 {
     vector<uint8_t> exit;
 
-    exit.push_back(0x48);
+    /*exit.push_back(0x48);
     exit.push_back(0x31);
     exit.push_back(0xC0);
 
-    exit.push_back(0xC3);
+    exit.push_back(0xC3);*/
 
     return exit;
 }
@@ -325,8 +325,10 @@ vector<uint8_t> bfCOFF::GenerateCode(vector<Character*> input)
             }
             case '[':
             {
-                str kam = "jmp" + to_string(cco);
-                jmpmap[kam.c_str()] = code.size();
+                //str kam = "jmp" + to_string(cco);
+                //printf("jmp%i = %i\n", cco, code.size());
+                //jmpmap[kam.c_str()] = code.size();
+                loop.push(code.size());
                 code.push_back(0x80);
                 code.push_back(0x3E);
                 code.push_back(0x00);
@@ -334,20 +336,18 @@ vector<uint8_t> bfCOFF::GenerateCode(vector<Character*> input)
 
                 code.push_back(0x0F);
                 code.push_back(0x84);
-
+                
                 code.push_back(0x00);
                 code.push_back(0x00);
                 code.push_back(0x00);
                 code.push_back(0x00);
                 
-                cco++;
+                //cco++;
                 break;
             }
             case ']':
             {
-                str kam = "jmpe" + to_string(ccc);
-                str kbm = "jmp" + to_string(ccc);
-                jmpmap[kam.c_str()] = code.size(); 
+                /*str kbm = "jmp" + to_string(cco);
 
                 auto it = jmpmap.find(kbm.c_str());
 
@@ -368,11 +368,25 @@ vector<uint8_t> bfCOFF::GenerateCode(vector<Character*> input)
                     code.push_back(0xEB);
                     code.push_back(k);
                 }
-                //+6
+
                 int cds = code.size() - it->second - 9;
-                printf("%i %i\n", it->second + 6, cds);
                 memcpy(&code[it->second + 5], &cds, sizeof(cds));
-                ccc++;
+                cco--;*/
+                if(loop.empty())
+                    exit(1);
+
+                size_t jzoffset = loop.top();
+
+                loop.pop();
+
+                int k = jzoffset - code.size() - 5;
+
+                code.push_back(0xE9);
+                writeLE(code, k);
+
+                int cds = code.size() - jzoffset - 9;
+                memcpy(&code[jzoffset + 5], &cds, sizeof(cds));
+
                 break;
             }
             case '.':
@@ -414,6 +428,17 @@ vector<uint8_t> bfCOFF::GenerateCode(vector<Character*> input)
         }
     }
     //
+
+    code.push_back(0x48);
+    code.push_back(0x31);
+    code.push_back(0xC9);
+
+    code.push_back(0xE8);
+    reloclistmap[code.size()] = "exit";
+    code.push_back(0x00);
+    code.push_back(0x00);
+    code.push_back(0x00);
+    code.push_back(0x00);
 
     //epilogue
     InsertVector(code, GenerateExit());
@@ -538,6 +563,7 @@ vector<uint8_t> bfCOFF::GenerateSymbolTable()
     char padnameget[8] = "getchar";
     char padnamefile[8] = ".file";
     char padnametape[8] = "tape";
+    char padnameexit[8] = "exit";
     memcpy(padnameabsolut, ".absolut", 8);
 
     //CreateSymbol(padnamefile, 0, -2, 0, 0x67, 1);
@@ -549,6 +575,7 @@ vector<uint8_t> bfCOFF::GenerateSymbolTable()
     //CreateSymbol(padnametape, 0, 1, 0, 3, 0);
     CreateSymbol(padnameput, 0, 0, 0, 2, 0);
     CreateSymbol(padnameget, 0, 0, 0, 2, 0);
+    CreateSymbol(padnameexit, 0, 0, 0, 2, 0);
     CreateSymbol(padnameentry, 0, 2, 0, 2, 0);
 
     for(auto a : symbollist)
@@ -588,10 +615,10 @@ void bfCOFF::Generate()
     InsertVector(code, relcode);
     InsertVector(code, symbcode);
 
-    printf("%i\n", code.size());
+    //printf("%i\n", code.size());
     for(auto a : code)
     {
-        printf("%02x ", a);
+        //printf("%02x ", a);
         fwrite(&a, 1, sizeof(a), f);
         //file->fwrite8(a);
     }

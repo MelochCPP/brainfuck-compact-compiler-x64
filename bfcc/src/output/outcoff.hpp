@@ -68,6 +68,8 @@ class bfCOFF
     map<int, const char*> reloclistmap;
     map<const char*, int> jmpmap;
 
+    stack<size_t> loop;
+
     int rpa;    //reloc num
 
     vector<const char*> sections;     //idk that is this
@@ -88,7 +90,7 @@ class bfCOFF
         
         for(int i = 0; i < sizeof(T); ++i)
         {
-            vec.push_back(static_cast<uint8_t>(value >> i*8));
+            vec.push_back(static_cast<uint8_t>((value >> i*8) & 0xFF));
         }
     }
 

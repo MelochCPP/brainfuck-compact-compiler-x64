@@ -11,6 +11,7 @@
 #include <iostream>
 #include <cerrno>
 #include <map>
+#include <stack>
 
 typedef std::string str;
 using namespace std;
