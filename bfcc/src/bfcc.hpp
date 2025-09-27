@@ -16,12 +16,6 @@
 typedef std::string str;
 using namespace std;
 
-#include "bfcclib\file.hpp"
-
-#include "bfstart.hpp"
-#include "output\outcoff.hpp"
-
-
 namespace global_vars
 {
     inline str platform;
@@ -30,3 +24,10 @@ namespace global_vars
     inline unsigned long long memory_size;
     inline bool start;
 }
+
+#include "bfcclib\file.hpp"
+
+#include "bfstart.hpp"
+#include "output\outcoff.hpp"
+
+

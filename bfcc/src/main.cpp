@@ -68,7 +68,7 @@ int main(int argc, char** argv)
                 exit(1);
             }
         }
-        else if(arg == "-m" || arg == "-memory")
+        else if(arg == "-m" || arg == "--memory")
         {
             if(i + 1 < argc)
             {
@@ -103,6 +103,11 @@ int main(int argc, char** argv)
         inter.interpret();
 
         exit(0);
+    }
+
+    if(global_vars::outputfilename == "a.obj")
+    {
+        global_vars::outputfilename = filename_ret_extension(global_vars::inputfilename, "obj");
     }
 
     ifstream f(global_vars::inputfilename.c_str());

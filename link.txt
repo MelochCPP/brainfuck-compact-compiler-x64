@@ -1,0 +1,1 @@
+ld *input file name* -o *output file name* -lmsvcrt --gc-sections --entry main --subsystem console
