@@ -66,7 +66,7 @@ class bfCOFF
     vector<Symbol*> symbollist;
 
     map<int, const char*> reloclistmap;
-    map<const char*, int> jmpmap;
+    map<const char*, int> jmpmap;   //
 
     stack<size_t> loop;
 
@@ -112,6 +112,10 @@ class bfCOFF
     SectionHeader* CreateSectionHeader(char[8], uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint16_t, uint16_t, uint32_t);
     Relocation* CreateRelocation(uint32_t, uint32_t, uint16_t);
     Symbol* CreateSymbol(char[8], uint32_t, int16_t, uint16_t, uint8_t, uint8_t);
+
+    /*
+    СИР-СТОУН-ЛАРЛ-БКБ-КОЛААААААААААААААААААПС
+    */
 
     vector<uint8_t> GenerateCOFFHeader();
     vector<uint8_t> GenerateSymbolTable();

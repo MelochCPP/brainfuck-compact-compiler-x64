@@ -115,10 +115,18 @@ Character* bfCOFF::CreateCharacter(char input)
 
     charac->value = current;
     int i = 0;
-    while(current == input)
+    if(current == '[' || current == ']' || current == '.' || current == ',')
     {
         i++;
         advance();
+    }
+    else
+    {
+        while(current == input)
+        {
+            i++;
+            advance();
+        }
     }
 
     charac->repeat = i;
@@ -151,13 +159,21 @@ vector<Character*> bfCOFF::Analyse()
                 ret.push_back(CreateCharacter('<'));
                 break;
             case '[':
+            {
+                Character* a = CreateCharacter('[');
                 copen++;
-                ret.push_back(CreateCharacter('['));
+                ret.push_back(a);
                 break;
+            }
+
             case ']':
+            {                
+                Character* b = CreateCharacter(']');
                 cclose++;
-                ret.push_back(CreateCharacter(']'));
+                ret.push_back(b);
                 break;
+            }
+
             case '.':
                 ret.push_back(CreateCharacter('.'));
                 rpa++;
@@ -174,7 +190,7 @@ vector<Character*> bfCOFF::Analyse()
 
     if(cclose != copen)
     {
-        printf("Analyser error: [ count does't equals ] count\n");
+        printf("Analyser error: [ count does't equals ] count: [ - %i, ] - %i\n", copen, cclose);
         exit(1);
     }
 
@@ -597,6 +613,7 @@ vector<uint8_t> bfCOFF::GenerateSymbolTable()
 void bfCOFF::Generate()
 {
     vector<Character*> tokens = Analyse();
+
     vector<uint8_t> datacode = GenerateDataBuffer();
     datasize = datacode.size();
     vector<uint8_t> textcode = GenerateCode(tokens);
