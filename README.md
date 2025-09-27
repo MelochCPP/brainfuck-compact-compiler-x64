@@ -20,7 +20,9 @@ Here is an example:
 (for use bfcc without path to program, just add bfcc path in global vars in windows)
 
 ``` bfcc -f *file path (name)* -o *output file path(name)* -m 30 ``` <- compile program
+
 or
+
 ``` bfcc -f *file path (name)* -s -m 30 ``` <- debugs(run) program
 ### Link
 for minimal size of output executable file i use ld with this args:
