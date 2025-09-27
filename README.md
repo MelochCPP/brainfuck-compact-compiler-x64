@@ -13,8 +13,8 @@ You can use bfcc.exe -h or bfcc.exe --help. But i will write here a complete lis
 > -o - output file name(path), by default a.obj (technically optional)
 > -m - set memory size in data section by default 30000(brainfuck standard) (optional)
 ```
-[!WARNING]
--m affects the size of the output file
+> [!WARNING]
+> -m affects the size of the output file
 
 Here is an example:
 (for use bfcc without path to program, just add bfcc path in global vars in windows)
