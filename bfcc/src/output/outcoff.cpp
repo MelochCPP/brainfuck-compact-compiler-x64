@@ -592,6 +592,7 @@ vector<uint8_t> bfCOFF::GenerateSymbolTable()
     CreateSymbol(padnameput, 0, 0, 0, 2, 0);
     CreateSymbol(padnameget, 0, 0, 0, 2, 0);
     CreateSymbol(padnameexit, 0, 0, 0, 2, 0);
+    memcpy(padnameentry, global_vars::entryname.c_str(), 8);
     CreateSymbol(padnameentry, 0, 2, 0, 2, 0);
 
     for(auto a : symbollist)

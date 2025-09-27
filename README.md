@@ -12,6 +12,7 @@ You can use bfcc.exe -h or bfcc.exe --help. But i will write here a complete lis
 > -s - start arg, just interpretate the input program and exit  (optiobal)
 > -o - output file name(path), by default a.obj (technically optional)
 > -m - set memory size in data section by default 30000(brainfuck standard) (optional)
+> -e - set entry function name (optional)
 ```
 > [!WARNING]
 > -m affects the size of the output file

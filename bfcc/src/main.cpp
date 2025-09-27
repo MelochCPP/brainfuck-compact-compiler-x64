@@ -2,6 +2,7 @@
 
 void initglobalvars()
 {
+    global_vars::entryname = "main";
     global_vars::platform = "win64";
     global_vars::inputfilename = "nullptr";
     global_vars::outputfilename = "a.obj";
@@ -24,7 +25,7 @@ int main(int argc, char** argv)
         if(arg == "-h" || arg == "--help")
         {
             //printf help stuff
-            printf("BFCC help: use bfcc.exe [argumets]\n -h - information about argumets parameters\n -p - platform for compile\n -f - input file\n -o - output file\n -s - execute file (requires -f)\n-m - .data memory in bytes\n");
+            printf("BFCC help: use bfcc.exe [argumets]\n -h - information about argumets parameters\n -p - platform for compile\n -f - input file\n -o - output file\n -s - execute file (requires -f)\n-m - .data memory in bytes\n-e - set entry function name (optional)\n");
             system("pause");
             exit(0);
         }
@@ -48,7 +49,19 @@ int main(int argc, char** argv)
             }
             else
             {
-                printf("BFCC error: --platform requires a input file name\n");
+                printf("BFCC error: --file requires a platform\n");
+                exit(1);
+            }
+        }
+        else if(arg == "-e" || arg == "--entry")
+        {
+            if(i + 1 < argc)
+            {
+                global_vars::entryname = argv[++i];
+            }
+            else
+            {
+                printf("BFCC error: --entry requires a entry function name\n");
                 exit(1);
             }
         }

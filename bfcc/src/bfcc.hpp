@@ -18,6 +18,7 @@ using namespace std;
 
 namespace global_vars
 {
+    inline str entryname;
     inline str platform;
     inline str inputfilename;
     inline str outputfilename;
