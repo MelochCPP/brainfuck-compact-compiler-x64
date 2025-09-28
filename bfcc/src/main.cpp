@@ -8,6 +8,7 @@ void initglobalvars()
     global_vars::outputfilename = "a.obj";
     global_vars::memory_size = 30000;   //brainfuck standart
     global_vars::start = false;
+    global_vars::isbin = false;
 }
 
 int main(int argc, char** argv)
@@ -52,6 +53,10 @@ int main(int argc, char** argv)
                 printf("BFCC error: --file requires a platform\n");
                 exit(1);
             }
+        }
+        else if(arg == "-b" || arg == "--binary")
+        {
+            global_vars::isbin = true;
         }
         else if(arg == "-e" || arg == "--entry")
         {
@@ -117,29 +122,52 @@ int main(int argc, char** argv)
 
         exit(0);
     }
-
-    if(global_vars::outputfilename == "a.obj")
+    else if(global_vars::isbin)
     {
-        global_vars::outputfilename = filename_ret_extension(global_vars::inputfilename, "obj");
+        global_vars::outputfilename = filename_ret_extension(global_vars::inputfilename, "bin");
+        ifstream f(global_vars::inputfilename.c_str());
+        if(!f.is_open())
+        {
+            printf("BFCC error: failed to open file %s\n", global_vars::inputfilename.c_str());
+            exit(1);
+        }
+        stringstream buffer;
+
+        buffer << f.rdbuf();
+
+        f.close();
+
+        bfCOFF bf(global_vars::inputfilename, buffer.str().c_str());
+        buffer.clear();
+        bf.Generate();
+    }
+    else
+    {
+        
+        if(global_vars::outputfilename == "a.obj")
+        {
+            global_vars::outputfilename = filename_ret_extension(global_vars::inputfilename, "obj");
+        }
+
+        ifstream f(global_vars::inputfilename.c_str());
+
+        if(!f.is_open())
+        {
+            printf("BFCC error: failed to open file %s\n", global_vars::inputfilename.c_str());
+            exit(1);
+        }
+
+        stringstream buffer;
+
+        buffer << f.rdbuf();
+
+        f.close();
+
+        bfCOFF bf(global_vars::inputfilename, buffer.str().c_str());
+        buffer.clear();
+        bf.Generate();
     }
 
-    ifstream f(global_vars::inputfilename.c_str());
-
-    if(!f.is_open())
-    {
-        printf("BFCC error: failed to open file %s\n", global_vars::inputfilename.c_str());
-        exit(1);
-    }
-
-    stringstream buffer;
-
-    buffer << f.rdbuf();
-
-    f.close();
-
-    bfCOFF bf(global_vars::inputfilename, buffer.str().c_str());
-    buffer.clear();
-    bf.Generate();
 
     return 0;
 }

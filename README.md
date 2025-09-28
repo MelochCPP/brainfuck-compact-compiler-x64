@@ -13,9 +13,13 @@ You can use bfcc.exe -h or bfcc.exe --help. But i will write here a complete lis
 > -o - output file name(path), by default a.obj (technically optional)
 > -m - set memory size in data section by default 30000(brainfuck standard) (optional)
 > -e - set entry function name (optional)
+> -b - set binary mode (creates .bin file with data and text sections fasm like)    (optional)
 ```
 > [!WARNING]
 > -m affects the size of the output file
+
+> [!WARNING]
+> -b affects on putchar and getchar calls(doesnt works outof null relocations)
 
 Here is an example:
 (for use bfcc without path to program, just add bfcc path in global vars in windows)

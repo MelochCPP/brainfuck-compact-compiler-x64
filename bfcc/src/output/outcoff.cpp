@@ -633,16 +633,31 @@ void bfCOFF::Generate()
     InsertVector(code, relcode);
     InsertVector(code, symbcode);
 
-    //printf("%i\n", code.size());
-    for(auto a : code)
+    if(global_vars::isbin)
     {
-        //printf("%02x ", a);
-        fwrite(&a, 1, sizeof(a), f);
-        //file->fwrite8(a);
+        for(auto b : datacode)
+        {
+            fwrite(&b, 1, sizeof(b), f);
+        }
+
+        for(auto c : textcode)
+        {
+            fwrite(&c, 1, sizeof(c), f);
+        }
     }
-    //file->fwrite32(4);	//string table XD
-    int stringtable = 4;
-    fwrite(&stringtable, 1, sizeof(int), f);
-    //file->bfexit();
+    else
+    {
+        //printf("%i\n", code.size());
+        for(auto a : code)
+        {
+            //printf("%02x ", a);
+            fwrite(&a, 1, sizeof(a), f);
+            //file->fwrite8(a);
+        }
+        //file->fwrite32(4);	//string table XD
+        int stringtable = 4;
+        fwrite(&stringtable, 1, sizeof(int), f);
+        //file->bfexit();
+    }
     fclose(f);
 }

@@ -116,6 +116,17 @@ class bfCOFF
     /*
     СИР-СТОУН-ЛАРЛ-БКБ-КОЛААААААААААААААААААПС
     */
+public:
+    bfCOFF(str filename, str input)
+    {
+        //f = fopen(filename_ret_extension(filename,  "obj").c_str(), "wb");
+        f = fopen(global_vars::outputfilename.c_str(), "wb");
+
+        source = input;
+        limit = source.length();
+        cursor = 0;
+        current = source.at(cursor);
+    }
 
     vector<uint8_t> GenerateCOFFHeader();
     vector<uint8_t> GenerateSymbolTable();
@@ -133,17 +144,6 @@ class bfCOFF
     char advance();
     Character* CreateCharacter(char);
     vector<Character*> Analyse();
-public:
-    bfCOFF(str filename, str input)
-    {
-        //f = fopen(filename_ret_extension(filename,  "obj").c_str(), "wb");
-        f = fopen(global_vars::outputfilename.c_str(), "wb");
-
-        source = input;
-        limit = source.length();
-        cursor = 0;
-        current = source.at(cursor);
-    }
 
     void Generate();
 };

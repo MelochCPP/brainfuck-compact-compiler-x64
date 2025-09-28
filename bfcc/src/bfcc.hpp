@@ -24,6 +24,7 @@ namespace global_vars
     inline str outputfilename;
     inline unsigned long long memory_size;
     inline bool start;
+    inline bool isbin;
 }
 
 #include "bfcclib\file.hpp"
